@@ -17,10 +17,10 @@ class Board:
         '''
         Draws cell seperators and player moves on pygame screen
         '''
-        s_h = screen.get_height()
+        s_h = screen.get_height()-150
         s_w = screen.get_width()
-        dx = s_w // self.size
-        dy = s_h // self.size
+        dx = s_w // self.size 
+        dy = s_h // self.size 
 
         screen.fill((51, 51, 51))
         
@@ -28,6 +28,12 @@ class Board:
         for i in range(self.size+1):
             pygame.draw.line(screen, (255, 255, 255), (dx*i, 0), (dx*i, s_h), 3)
             pygame.draw.line(screen, (255, 255, 255), (0, dy*i), (s_w, dy*i), 3)
+        #score
+        # score_font = pygame.font.SysFont('arial', 24)
+        # player1_score_text = score_font.render(f"Player:", True, (255, 255, 255))
+        # player2_score_text = score_font.render(f"AI:", True, (255, 255, 255))
+        # screen.blit(player1_score_text)
+        # screen.blit(player2_score_text)
 
         # Draw player moves
         for i in range(self.size):
@@ -121,7 +127,7 @@ class Board:
         '''
         Draws a line from cell1 to cell2 on pygame screen
         '''
-        s_h = screen.get_height()
+        s_h = screen.get_height()-150
         s_w = screen.get_width()
         dx = s_w // self.size
         dy = s_h // self.size

@@ -4,7 +4,7 @@ from board import Board
 pygame.init()
 
 WIDTH = 500-4
-HEIGHT = 500-4
+HEIGHT = 650-4
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Make Square')
 clock = pygame.time.Clock()
@@ -27,15 +27,53 @@ colors = {
 
 board = Board(playersigns=playersigns)
 checked_winners = [[False for _ in range(board.size)] for _ in range(board.size)]
+def update_scores(gaO=0):
+    # Render player scores
+    if gaO == 0:
+        avatar_img1 = pygame.image.load("human.png")
+        avatar_img2 = pygame.image.load("ai.png")
+        avatar_img1 = pygame.transform.scale(avatar_img1, (100, 100))
+        avatar_img2 = pygame.transform.scale(avatar_img2, (110, 125))
+        avatar_rect1 = avatar_img1.get_rect(left=65, top=535)
+        avatar_rect2 = avatar_img2.get_rect(left=320, top=525)
+        screen.blit(avatar_img1, avatar_rect1)
+        screen.blit(avatar_img2, avatar_rect2)
+        pygame.draw.line(screen, (255, 99, 71), (WIDTH//2, 520), (WIDTH//2, 626), 3)
+        score_font = pygame.font.SysFont('arial', 24)
+        player1_score_text = score_font.render(f"Player: {playerscores[0]}", True, (255, 255, 0))
+        player2_score_text = score_font.render(f"AI: {playerscores[1]}", True, (255, 255, 0))
+        score_rect1 = player1_score_text.get_rect(left=80, top=500)
+        score_rect2 = player2_score_text.get_rect(left=350, top=500)
+        screen.blit(player1_score_text, score_rect1)
+        screen.blit(player2_score_text, score_rect2)
+        pygame.display.update()
+    else:
+        avatar_img1 = pygame.image.load("human.png")
+        avatar_img2 = pygame.image.load("ai.png")
+        avatar_img1 = pygame.transform.scale(avatar_img1, (100, 100))
+        avatar_img2 = pygame.transform.scale(avatar_img2, (110, 125))
+        avatar_rect1 = avatar_img1.get_rect(left=65, top=535)
+        avatar_rect2 = avatar_img2.get_rect(left=320, top=525)
+        screen.blit(avatar_img1, avatar_rect1)
+        screen.blit(avatar_img2, avatar_rect2)
+        pygame.draw.line(screen, (255, 99, 71), (WIDTH//2, 520), (WIDTH//2, 626), 3)
+        score_font = pygame.font.SysFont('arial', 24)
+        player1_score_text = score_font.render(f"Player: {playerscores[0]-playerscores[0]}", True, (255, 255, 255))
+        player2_score_text = score_font.render(f"AI: {playerscores[1]-playerscores[1]}", True, (255, 255, 255))
+        score_rect1 = player1_score_text.get_rect(left=10, top=520)
+        score_rect2 = player2_score_text.get_rect(left=400, top=520)
+        screen.blit(player1_score_text, score_rect1)
+        screen.blit(player2_score_text, score_rect2)
+        pygame.display.update()
 
 def game_over():
     '''
-    Checks if there's a winner or all cells of board are filled: True
+    Checks if there's a winner or all cells of the board are filled: True
     Otherwise: False
     '''
     global player, playerscores, checked_winners, colors
     if Board.all_filled(board.board):
-        print('\nFinal score :')
+        print('\nFinal score:')
         print(f'Player {playerscores[0]}')
         print(f'AI {playerscores[1]}', end='\n\n')
 
@@ -49,19 +87,20 @@ def game_over():
             print('\nAI won!')
             winner = 'AI'
 
-        # Display winner on a new screen
+        # Display winner and scores on a new screen
         display_winner(winner)
         pygame.time.delay(3000)
         board.clear()
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
         board.draw(screen, checked_winners, colors)
         pygame.display.update()
-        
+        update_scores(1)
         player = 0
         playerscores = {
             0: 0,
             1: 0
         }
+        
         checked_winners = [[False for _ in range(board.size)] for _ in range(board.size)]
         return True
 
@@ -84,25 +123,24 @@ def display_winner(winner):
     avatar_img = pygame.transform.scale(avatar_img, (150, 150))
     avatar_rect = avatar_img.get_rect(left=125, top=120)
     winner_screen.blit(avatar_img, avatar_rect)
-    
 
-
-
-
-
-
-
+    # Render player scores
+    score_font = pygame.font.SysFont('arial', 24)
+    player1_score_text = score_font.render(f"Player: {playerscores[0]}", True, (255, 255, 255))
+    player2_score_text = score_font.render(f"AI: {playerscores[1]}", True, (255, 255, 255))
+    score_rect1 = player1_score_text.get_rect(left=150, top=300)
+    score_rect2 = player2_score_text.get_rect(left=170, top=340)
+    winner_screen.blit(player1_score_text, score_rect1)
+    winner_screen.blit(player2_score_text, score_rect2)
 
     winner_screen.blit(text, text_rect)
     pygame.display.flip()
-
-
-
 def check_winner():
     global board, winner_checked, playersigns, playerscores, colors
     winner, cells = Board.check_winner(board.board, checked_winners, playersigns)
     if winner != None:
         playerscores[winner] += 1
+        update_scores()
 
         print(f'Player {playerscores[0]}')
         print(f'AI {playerscores[1]}', end='\n\n')
@@ -113,7 +151,7 @@ def check_winner():
         board.draw_line(screen, cells[3], cells[1], colors[winner])
         board.draw_line(screen, cells[1], cells[0], colors[winner])
         pygame.display.update()
-        pygame.time.delay(1000)
+        pygame.time.delay(500)
 
         for i, j in cells:
             checked_winners[i][j] = True
@@ -192,7 +230,7 @@ while True:
             pos = pygame.mouse.get_pos()
             
             # Player's move
-            if board.update(i=pos[1] // (WIDTH // board.size), j=pos[0] // (HEIGHT // board.size), player=player):
+            if board.update(i=pos[1] // (WIDTH // board.size), j=pos[0] // ((HEIGHT-150) // board.size), player=player):
                 check_winner()
 
                 board.draw(screen, checked_winners, colors)
@@ -200,6 +238,7 @@ while True:
                 
                 if game_over():
                     continue
+                update_scores()
                 
                 # AI's move
                 player = (player + 1) % 2
@@ -210,9 +249,9 @@ while True:
 
                 board.draw(screen, checked_winners, colors)
                 pygame.display.update()
+                update_scores()
                 
                 # Player's move
                 player = (player + 1) % 2
                 game_over()
-
     pygame.display.update()
